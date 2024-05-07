@@ -251,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<Map<String, dynamic>> futureWeather;
   Future<Map<String, dynamic>> fetchWeather(String city) async {
     final response = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=9448ab20206f11d8e5b397cd1ab0b599&units=metric'));
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));//add private permission
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
