@@ -127,7 +127,8 @@ class _FirstPageState extends State<FirstPage> {
       city = getCity;
     }
     final response = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=9448ab20206f11d8e5b397cd1ab0b599&units=metric'));
+      //add private permission
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -251,7 +252,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<Map<String, dynamic>> futureWeather;
   Future<Map<String, dynamic>> fetchWeather(String city) async {
     final response = await http.get(Uri.parse(
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));//add private permission
+      // add private permission
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
