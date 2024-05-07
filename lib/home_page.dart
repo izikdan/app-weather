@@ -19,10 +19,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
           child: ElevatedButton(
-        child: const Text('Show notifications'),
+        child: const Text('Show notifications now'),
         onPressed: () {
           NotificationService()
               .showNotification(title: 'Sample title', body: 'It works!');
+          // ignore: avoid_print
+          print('it work');
         },
       )),
     );

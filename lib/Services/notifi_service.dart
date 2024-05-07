@@ -33,5 +33,6 @@ class NotificationService {
       {int id = 0, String? title, String? body, String? payLoad}) async {
     return notificationsPlugin.show(
         id, title, body, await notificationDetails());
+        
   }
 }
