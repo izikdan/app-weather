@@ -61,7 +61,7 @@ class _FirstPageState extends State<FirstPage> {
   }
 
   Future<String> fetchExample() async {
-    final url = Uri.parse('http://localhost:3000/');
+    final url = Uri.parse('http://10.0.2.2:3000'); //בשביל כרום צריך לרשום localhost:3000
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final data = response.body;
@@ -105,7 +105,7 @@ class _FirstPageState extends State<FirstPage> {
           NotificationService().showNotification(
             title: ' תחזית מזג אוויר : \n ${_getClothingAdvice()}',
             body:
-                ' $savedCity: טמפרטורה ל \n ${temperature.toStringAsFixed(1)} מעלות ',
+                '   טמפרטורה ל : $savedCity \n ${temperature.toStringAsFixed(1)} מעלות ',
           );
         }
         futureWeather = fetchWeather(savedCity); // עדכון futureWeather
@@ -121,14 +121,13 @@ class _FirstPageState extends State<FirstPage> {
   late Future<Map<String, dynamic>> futureWeather;
   Map<String, dynamic>? weatherData;
   Future<Map<String, dynamic>> fetchWeather(String city) async {
-    // זה עובד רק בכרום, באימולטור בשביל שיחזיר נןטיפיקציה צריך לשים בהערה 4 שורות עד הפינל הבא
     final getCity = await fetchExample();
     if (city == "") {
       city = getCity;
     }
     final response = await http.get(Uri.parse(
       //add private permission
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=9448ab20206f11d8e5b397cd1ab0b599&units=metric'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -141,7 +140,7 @@ class _FirstPageState extends State<FirstPage> {
     var now = DateTime.now();
 
     // חשב את הזמן עבור הופעת 8 בבוקר הבאה
-    var targetTime = DateTime(now.year, now.month, now.day, 14, 24, 0);
+    var targetTime = DateTime(now.year, now.month, now.day, 01, 26, 0);
 
     // בדוק אם זמן היעד כבר חלף עבור היום הנוכחי
     if (targetTime.isBefore(now)) {
@@ -253,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<Map<String, dynamic>> fetchWeather(String city) async {
     final response = await http.get(Uri.parse(
       // add private permission
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=9448ab20206f11d8e5b397cd1ab0b599&units=metric'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
