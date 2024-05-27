@@ -35,37 +35,27 @@ class CityDefinition extends StatefulWidget {
 }
 
 class _CityDefinitionState extends State<CityDefinition> {
-  final _db = FirebaseDatabase.instance.ref('users/user');
+  final _db = FirebaseDatabase.instance.ref('users').child('user');
   final _searchController = TextEditingController();
   String? _selectedCity;
 
   void _searchUser(String searchTerm) async {
-    // הפונקציה כעת מקבלת ארגומנט String
-    final searchTerm = _searchController.text.trim();
-    if (searchTerm.isEmpty) return;
-
-    final snapshot = await _db.get();
-    if (snapshot.exists) {
-      for (final userSnapshot in snapshot.children) {
-        final userSnapshotValue = userSnapshot.value;
-
-        // בדוק אם הנתונים הם מסוג String (JSON)
-        if (userSnapshotValue is String) {
-          final user = jsonDecode(userSnapshotValue)  as Map<dynamic, dynamic>;
-          final email = user['email'];
-          final cityName = user['city_name'];
-
-          if (email == searchTerm) {
-            setState(() {
-              _selectedCity = cityName;
-            });
-            break; // Stop searching after finding a match
-          }
-        }
-      }
+  final snapshot = await _db.orderByChild('email').equalTo(searchTerm).get();
+  if (snapshot.exists && snapshot.value != null) {
+final userData = Map<dynamic, dynamic>.from(snapshot.value as Map);
+    // מניחים שנמצא משתמש יחיד
+    if (userData.isNotEmpty) {
+      final dynamic firstKey = userData.keys.first;
+      final dynamic user = userData[firstKey];
+      final String cityName = user['city_name'];
+      setState(() {
+        _selectedCity = cityName;
+      });
     }
+  } else {
+    print('משתמש לא נמצא');
   }
-
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
