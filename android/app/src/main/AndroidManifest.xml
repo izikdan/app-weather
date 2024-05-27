@@ -3,7 +3,8 @@
    <application
         android:label="local_notification_app_demo"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
 
         <activity

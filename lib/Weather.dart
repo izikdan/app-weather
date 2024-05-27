@@ -1,4 +1,3 @@
-
 // ignore_for_file: avoid_print
 
 import 'dart:async';
@@ -7,8 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:local_notification_app_demo/Services/notifi_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-void main() {
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -60,15 +69,21 @@ class _FirstPageState extends State<FirstPage> {
     });
   }
 
-  Future<String> fetchExample() async {
-    final url = Uri.parse('http://localhost:3000/');
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final data = response.body;
-      return data;
-    } else {
-      print('שגיאה: ${response.statusCode}');
-      throw Exception('נכשל באחזור נתונים');
+  Future<String> fetchExample(String city) async {
+    final db = FirebaseDatabase.instance;
+    final ref = db.ref().child('city_name').child(city);
+    try {
+      final snapshot = await ref.get();
+      if (snapshot.exists) {
+        final data = snapshot.value;
+        return jsonEncode(data).toString();
+      } else {
+        print('לא נמצאו נתוני מזג אוויר עבור העיר: $city');
+        throw Exception('נתוני מזג האוויר לא נמצאו');
+      }
+    } catch (error) {
+      print('שגיאה בקבלת נתוני מזג אוויר: $error');
+      throw Exception('נכשל באחזור נתוני מזג האוויר');
     }
   }
 
@@ -95,6 +110,7 @@ class _FirstPageState extends State<FirstPage> {
 
   Future<dynamic> _loadCityFromLocalStorage() async {
     final savedCity = await localStorage.getItem('city');
+    final db = FirebaseDatabase.instance;
     if (savedCity != null) {
       setState(() {
         cityController.text = savedCity;
@@ -110,8 +126,11 @@ class _FirstPageState extends State<FirstPage> {
         }
         futureWeather = fetchWeather(savedCity); // עדכון futureWeather
       });
+      
+      final docRef = db.ref().child('name_city').child(savedCity);
+      docRef.push().set({'city': savedCity});
     }
-    final fetchedCity = await fetchExample();
+    final fetchedCity = await fetchExample(widget.city);
     if (fetchedCity.isNotEmpty) {
       _updateLocalStorageWithCityData(fetchedCity);
       fetchWeather(fetchedCity); // עדכן אחסון מקומי
@@ -122,13 +141,13 @@ class _FirstPageState extends State<FirstPage> {
   Map<String, dynamic>? weatherData;
   Future<Map<String, dynamic>> fetchWeather(String city) async {
     // זה עובד רק בכרום, באימולטור בשביל שיחזיר נןטיפיקציה צריך לשים בהערה 4 שורות עד הפינל הבא
-    final getCity = await fetchExample();
+    final getCity = await fetchExample(widget.city);
     if (city == "") {
       city = getCity;
     }
     final response = await http.get(Uri.parse(
-      //add private permission
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));
+        //add private permission
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=9448ab20206f11d8e5b397cd1ab0b599&units=metric'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
@@ -252,8 +271,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<Map<String, dynamic>> futureWeather;
   Future<Map<String, dynamic>> fetchWeather(String city) async {
     final response = await http.get(Uri.parse(
-      // add private permission
-        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=&units=metric'));
+        // add private permission
+        'https://api.openweathermap.org/data/2.5/weather?q=$city&appid=9448ab20206f11d8e5b397cd1ab0b599&units=metric'));
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
